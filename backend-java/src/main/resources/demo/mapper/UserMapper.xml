@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.mapper.UserMapper">
+
+    <!--
+      Paginated query by role, supporting fuzzy name search and exact ID filter.
+      Corresponds to: List<User> findByRoleAndFilter(String role, String name, Long id);
+    -->
+    <select id="findByRoleAndFilter" resultType="demo.pojo.User" parameterType="map">
+        SELECT
+        id,
+        username,
+        name,
+        email,
+        phone,
+        role,
+        status,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+        FROM users
+        <where>
+            AND role = #{role}
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- Conditional query for students -->
+    <select id="findStudentsByCondition" resultType="demo.pojo.User" parameterType="map">
+        SELECT
+        id,
+        username,
+        name,
+        email,
+        phone,
+        role,
+        status,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+        FROM users
+        <where>
+            AND role = 'STUDENT'
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- Conditional query for teachers -->
+    <select id="findTeachersByCondition" resultType="demo.pojo.User" parameterType="map">
+        SELECT
+        id,
+        username,
+        name,
+        email,
+        phone,
+        role,
+        status,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+        FROM users
+        <where>
+            AND role = 'TEACHER'
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- Count user registrations by day -->
+    <select id="countUserRegistrationByDay" resultType="java.util.HashMap">
+        SELECT DATE(created_at) AS date, COUNT(*) AS count
+        FROM users
+        GROUP BY DATE(created_at)
+        ORDER BY date ASC
+    </select>
+
+    <!-- Get recent activities (last 30 days) -->
+    <select id="getRecentActivities" resultType="java.util.HashMap">
+        SELECT
+            'USER_REGISTRATION' AS type,
+            CONCAT(name, ' registered as ',
+                   CASE
+                       WHEN role = 'STUDENT' THEN 'a student'
+                       WHEN role = 'TEACHER' THEN 'a teacher'
+                       ELSE 'a user'
+                       END
+            ) AS title,
+            CONCAT('New ', LOWER(role), ' registration') AS description,
+            created_at AS time,
+            CASE
+                WHEN role = 'STUDENT' THEN 'primary'
+                WHEN role = 'TEACHER' THEN 'warning'
+                ELSE 'info'
+        END AS activity_type,
+            CASE
+                WHEN role = 'STUDENT' THEN '#409eff'
+                WHEN role = 'TEACHER' THEN '#e6a23c'
+                ELSE '#909399'
+        END AS color,
+            CASE
+                WHEN role = 'STUDENT' THEN 'students'
+                WHEN role = 'TEACHER' THEN 'teachers'
+                ELSE 'users'
+        END AS menu_index
+        FROM users
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>

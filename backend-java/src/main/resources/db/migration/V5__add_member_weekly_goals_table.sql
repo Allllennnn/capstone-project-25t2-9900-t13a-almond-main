@@ -1,0 +1,13 @@
+CREATE TABLE member_weekly_goals (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    task_id BIGINT NOT NULL,
+    student_id BIGINT NOT NULL,
+    week_no TINYINT NOT NULL,
+    goal TEXT NOT NULL,
+    status ENUM('NOTUPLOADED', 'PROCESSING', 'FINISHED') NOT NULL DEFAULT 'NOTUPLOADED',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_member_week (task_id, student_id, week_no),
+    CONSTRAINT fk_mwg_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    CONSTRAINT fk_mwg_student FOREIGN KEY (student_id) REFERENCES students(user_id) ON DELETE CASCADE
+); 

@@ -1,0 +1,1 @@
+ALTER TABLE tasks ADD COLUMN cycle INT DEFAULT 1 COMMENT '任务周期（周数）'; 

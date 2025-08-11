@@ -1,0 +1,9 @@
+-- -- V3__add_password_and_username_to_users.sql
+--
+-- -- 添加 password 字段
+-- ALTER TABLE `users`
+--     ADD COLUMN `password` VARCHAR(255) NOT NULL DEFAULT '';
+--
+-- -- 添加 username 字段
+-- ALTER TABLE `users`
+--     ADD COLUMN `username` VARCHAR(100) NOT NULL DEFAULT '' AFTER `id`;
